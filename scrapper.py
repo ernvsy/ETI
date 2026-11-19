@@ -24,7 +24,6 @@ CSV_PATH = Path(__file__).resolve().parent / "hasil_berita.csv"
 _robots_cache = {}
 
 
-# ---------- robots.txt checker (di-cache per domain) ----------
 def check_robots(url):
     p = urlparse(url)
     base = f"{p.scheme}://{p.netloc}"
@@ -56,8 +55,6 @@ def check_robots(url):
         return True
     return rp.can_fetch(USER_AGENT, url)
 
-
-# ---------- Ambil halaman ----------
 def get_page(url):
     if not check_robots(url):
         print("  Dilewati (robots.txt): ", url)
@@ -73,8 +70,6 @@ def get_page(url):
     finally:
         time.sleep(DELAY)
 
-
-# ---------- Cari link artikel dari halaman indeks ----------
 def collect_links(index_url, limit):
     print("Mengambil daftar artikel dari:", index_url)
     html = get_page(index_url)
@@ -96,15 +91,12 @@ def collect_links(index_url, limit):
     print(f"Ditemukan {len(links)} link artikel.")
     return links
 
-
-# ---------- Ekstrak data ----------
 def meta(soup, *selectors):
     for sel in selectors:
         tag = soup.select_one(sel)
         if tag and tag.get("content"):
             return tag["content"].strip()
     return ""
-
 
 def make_summary(description, content, max_chars=400):
     if description and len(description) > 60:
@@ -116,7 +108,6 @@ def make_summary(description, content, max_chars=400):
     if len(text) > max_chars:
         text = text[:max_chars].rsplit(" ", 1)[0] + "..."
     return text
-
 
 def parse_article(html, url):
     soup = BeautifulSoup(html, "html.parser")
@@ -134,8 +125,6 @@ def parse_article(html, url):
 
     return {"judul": title, "ringkasan": make_summary(description, content), "link": url}
 
-
-# ---------- Simpan CSV ----------
 def save_csv(results):
     path = CSV_PATH
     try:
@@ -150,8 +139,6 @@ def save_csv(results):
         w.writerows(results)
     print(f"Tersimpan di: {path} ({len(results)} baris)")
 
-
-# ---------- Program utama ----------
 def main():
     if "email-kamu" in EMAIL:
         print("Ganti dulu nilai EMAIL dengan emailmu yang aktif.")
